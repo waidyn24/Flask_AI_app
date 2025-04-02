@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Text Analysis</h1>
+    <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+    <button onclick="analyzeText()">Analyze</button>
+
+    <div class="result" id="result">
+        <h3>Results will appear here</h3>
+        <p><strong>Sentiment:</strong> <span id="sentimentResult">-</span></p>
+        <p><strong>Score:</strong> <span id="sentimentScore">-</span></p>
+        <p><strong>Summary:</strong> <span id="summaryResult">-</span></p>
+    </div>
+
+    <script>
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            if (!text) {
+                alert('Please enter some text');
+                return;
+            }
+
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Обновляем результаты
+                document.getElementById('sentimentResult').textContent =
+                    data.sentiment?.label || 'N/A';
+                document.getElementById('sentimentScore').textContent =
+                    data.sentiment?.score ? data.sentiment.score.toFixed(3) : 'N/A';
+                document.getElementById('summaryResult').textContent =
+                    data.summary || 'N/A';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during analysis');
+            });
+        }
+    </script>
+</body>
+</html>
